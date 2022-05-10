@@ -21,7 +21,9 @@ build-tests: build-simavr
 	$(MAKE) -C tests RELEASE=$(RELEASE)
 
 build-examples: build-simavr
-	$(MAKE) -C examples RELEASE=$(RELEASE)
+	ifneq (${WIN}, Msys)
+		$(MAKE) -C examples RELEASE=$(RELEASE)
+	endif
 
 build-parts: build-examples
 	$(MAKE) -C examples/parts RELEASE=$(RELEASE)
