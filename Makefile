@@ -9,6 +9,7 @@ RELEASE	?= 0
 
 DESTDIR = /usr/local
 PREFIX = ${DESTDIR}
+WIN := ${shell uname -o}
 
 .PHONY: doc
 
@@ -34,7 +35,9 @@ install-simavr:
 	$(MAKE) -C simavr install RELEASE=$(RELEASE) DESTDIR=$(DESTDIR) PREFIX=$(PREFIX)
 
 install-parts:
-	$(MAKE) -C examples/parts install RELEASE=$(RELEASE) DESTDIR=$(DESTDIR) PREFIX=$(PREFIX)
+	ifneq (${WIN}, Msys)
+		$(MAKE) -C examples/parts install RELEASE=$(RELEASE) DESTDIR=$(DESTDIR) PREFIX=$(PREFIX)
+	endif
 
 doc:
 	$(MAKE) -C doc RELEASE=$(RELEASE)
