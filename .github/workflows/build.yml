@@ -2,7 +2,7 @@ name: Build Binaries
 on: [push, pull_request]
 
 jobs:
-  build:
+  build-win64:
     runs-on: windows-latest
     defaults:
       run:
@@ -25,4 +25,27 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: Windows 64-bit
+          path: simavr_installed
+  build-win32:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW32
+          update: true
+          install: git make mingw-w64-i686-toolchain mingw-w64-i686-libelf mingw-w64-i686-avr-toolchain mingw-w64-i686-freeglut
+      - name: CI-Build
+        run: |
+          make build-simavr V=1
+          mkdir simavr_installed
+          make -k install DESTDIR=$(pwd)/simavr_installed/ || true
+          mv simavr_installed/bin/simavr simavr_installed/bin/simavr.exe
+          file simavr_installed/bin/*
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Windows 32-bit
           path: simavr_installed
