@@ -22,3 +22,7 @@ jobs:
           make -k install DESTDIR=$(pwd)/simavr_installed/ || true
           mv simavr_installed/bin/simavr simavr_installed/bin/simavr.exe
           file simavr_installed/bin/*
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Windows 64-bit
+          path: simavr_installed

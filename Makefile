@@ -9,7 +9,6 @@ RELEASE	?= 0
 
 DESTDIR = /usr/local
 PREFIX = ${DESTDIR}
-WIN := ${shell uname -o}
 
 .PHONY: doc
 
@@ -22,9 +21,7 @@ build-tests: build-simavr
 	$(MAKE) -C tests RELEASE=$(RELEASE)
 
 build-examples: build-simavr
-	ifneq (${WIN}, Msys)
 	$(MAKE) -C examples RELEASE=$(RELEASE)
-	endif
 
 build-parts: build-examples
 	$(MAKE) -C examples/parts RELEASE=$(RELEASE)
@@ -35,9 +32,7 @@ install-simavr:
 	$(MAKE) -C simavr install RELEASE=$(RELEASE) DESTDIR=$(DESTDIR) PREFIX=$(PREFIX)
 
 install-parts:
-	ifneq (${WIN}, Msys)
 	$(MAKE) -C examples/parts install RELEASE=$(RELEASE) DESTDIR=$(DESTDIR) PREFIX=$(PREFIX)
-	endif
 
 doc:
 	$(MAKE) -C doc RELEASE=$(RELEASE)
