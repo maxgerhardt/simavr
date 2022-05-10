@@ -23,7 +23,7 @@ build-tests: build-simavr
 
 build-examples: build-simavr
 	ifneq (${WIN}, Msys)
-		$(MAKE) -C examples RELEASE=$(RELEASE)
+	$(MAKE) -C examples RELEASE=$(RELEASE)
 	endif
 
 build-parts: build-examples
@@ -36,7 +36,7 @@ install-simavr:
 
 install-parts:
 	ifneq (${WIN}, Msys)
-		$(MAKE) -C examples/parts install RELEASE=$(RELEASE) DESTDIR=$(DESTDIR) PREFIX=$(PREFIX)
+	$(MAKE) -C examples/parts install RELEASE=$(RELEASE) DESTDIR=$(DESTDIR) PREFIX=$(PREFIX)
 	endif
 
 doc:
