@@ -17,8 +17,8 @@ jobs:
       - name: CI-Build
         run: |
           echo 'Running in MSYS2!'
-          make build-simavr V=1
+          mingw32-make build-simavr V=1
           mkdir simavr_installed
-          make install DESTDIR=$(pwd)/simavr_installed/
+          mingw32-make install DESTDIR=$(pwd)/simavr_installed/
           mv simavr_installed/bin/simavr simavr_installed/bin/simavr.exe
           file simavr_installed/bin/*
