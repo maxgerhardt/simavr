@@ -54,13 +54,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install Dependenncies
-        run: sudo apt-get install -y build-essential git make gcc-avr avr-libc libelf-dev freeglut3-dev
+        run: sudo apt-get install -y build-essential git make gcc-avr avr-libc libelf-dev freeglut3-dev patchelf
       - name: CI-Build
         run: |
           make build-simavr V=1 RELEASE=1
           mkdir simavr_installed
           make  install RELEASE=1 DESTDIR=$(pwd)/simavr_installed/
           file simavr_installed/bin/*
+          patchelf --remove-needed ./libsimavr.so.1 simavr_installed/bin/simavr || true
+          patchelf --add-needed libsimavr.so.1 simavr_installed/bin/simavr
+          patchelf --set-rpath '$ORIGIN/../lib/' simavr_installed/bin/simavr
           ldd simavr_installed/bin/*
           simavr_installed/bin/simavr --list-cores || true
       - name: Tar files
@@ -77,7 +80,7 @@ jobs:
         run: | 
           sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt-get install -y libstdc++6:i386 libgcc1:i386 zlib1g:i386 libncurses5:i386 gcc-9:i386 binutils:i386 cpp-9:i386 libelf-dev:i386 freeglut3-dev:i386 gcc-avr avr-libc
+          sudo apt-get install -y libstdc++6:i386 libgcc1:i386 zlib1g:i386 libncurses5:i386 gcc-9:i386 binutils:i386 cpp-9:i386 libelf-dev:i386 freeglut3-dev:i386 gcc-avr avr-libc patchelf
           ls -l /usr/bin/*gcc*
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 10
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 20
