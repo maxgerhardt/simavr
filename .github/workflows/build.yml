@@ -61,7 +61,7 @@ jobs:
           mkdir simavr_installed
           make  install RELEASE=1 DESTDIR=$(pwd)/simavr_installed/
           file simavr_installed/bin/*
-          simavr_installed/bin/simavr --list-cores
+          simavr_installed/bin/simavr --list-cores || true
       - uses: actions/upload-artifact@v3
         with:
           name: Linux 64-bit
