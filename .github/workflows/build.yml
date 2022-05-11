@@ -62,10 +62,12 @@ jobs:
           make  install RELEASE=1 DESTDIR=$(pwd)/simavr_installed/
           file simavr_installed/bin/*
           simavr_installed/bin/simavr --list-cores || true
+      - name: Tar files
+        run: tar -cvf simavr.tar simavr_installed/*
       - uses: actions/upload-artifact@v3
         with:
           name: Linux 64-bit
-          path: simavr_installed
+          path: simavr.tar
   build-lin32:
     runs-on: ubuntu-latest
     steps:
@@ -85,9 +87,11 @@ jobs:
           make build-simavr V=1 RELEASE=1
           mkdir simavr_installed
           make  install RELEASE=1 DESTDIR=$(pwd)/simavr_installed/
-          file simavr_installed/bin/*
+          file simavr_installed/bin
           simavr_installed/bin/simavr --list-cores || true
+      - name: Tar files
+        run: tar -cvf simavr.tar simavr_installed/*
       - uses: actions/upload-artifact@v3
         with:
           name: Linux 32-bit
-          path: simavr_installed
+          path: simavr.tar
