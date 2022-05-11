@@ -66,3 +66,23 @@ jobs:
         with:
           name: Linux 64-bit
           path: simavr_installed
+  build-lin32:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Dependenncies
+        run: | 
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y libstdc++6:i386 libgcc1:i386 zlib1g:i386 libncurses5:i386 gcc-9:i386 binutils:i386 cpp-9:i386libelf-dev:i386 freeglut3-dev:i386 gcc-avr avr-libc
+      - name: CI-Build
+        run: |
+          make build-simavr V=1 RELEASE=1
+          mkdir simavr_installed
+          make  install RELEASE=1 DESTDIR=$(pwd)/simavr_installed/
+          file simavr_installed/bin/*
+          simavr_installed/bin/simavr --list-cores || true
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Linux 32-bit
+          path: simavr_installed
