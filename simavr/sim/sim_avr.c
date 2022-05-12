@@ -30,6 +30,7 @@
 #include "sim_core.h"
 #include "sim_time.h"
 #include "sim_gdb.h"
+#include "sim_gdb_types.h"
 #include "avr_uart.h"
 #include "sim_vcd_file.h"
 #include "avr/avr_mcu_section.h"
@@ -287,51 +288,34 @@ void
 avr_callback_run_gdb(
 		avr_t * avr)
 {
-	avr_gdb_processor(avr, avr->state == cpu_Stopped ? 50000 : 0);
+    avr_gdb_t* g = avr->gdb;
 
-	if (avr->state == cpu_Stopped)
-		return ;
+    if (avr->state == cpu_Running && gdb_watch_find(&g->breakpoints, avr->pc) != -1) {
+        gdb_send_quick_status(g, 0);
+        avr->state = cpu_Stopped;
+    } else if (avr->state == cpu_StepDone) {
+        gdb_send_quick_status(g, 0);
+        avr->state = cpu_Stopped;
+    }
 
-	// if we are stepping one instruction, we "run" for one..
-	int step = avr->state == cpu_Step;
-	if (step)
-		avr->state = cpu_Running;
+    // this also sleeps for a bit
+    // gdb_network_handler(g, 0);
 
-	avr_flashaddr_t new_pc = avr->pc;
+    if (avr->state == cpu_Stopped) {
+        gdb_network_handler(g, 0);
+        return;
+    }
 
-	if (avr->state == cpu_Running) {
-		new_pc = avr_run_one(avr);
-#if CONFIG_SIMAVR_TRACE
-		avr_dump_state(avr);
-#endif
-	}
+    // if we are stepping one instruction, we "run" for one..
+    int step = avr->state == cpu_Step;
+    if (step)
+        avr->state = cpu_Running;
 
-	// run the cycle timers, get the suggested sleep time
-	// until the next timer is due
-	avr_cycle_count_t sleep = avr_cycle_timer_process(avr);
+    avr_callback_run_raw(avr);
 
-	avr->pc = new_pc;
-
-	if (avr->state == cpu_Sleeping) {
-		if (!avr->sreg[S_I]) {
-			if (avr->log)
-				AVR_LOG(avr, LOG_TRACE, "simavr: sleeping with interrupts off, quitting gracefully\n");
-			avr->state = cpu_Done;
-			return;
-		}
-		/*
-		 * try to sleep for as long as we can (?)
-		 */
-		avr->sleep(avr, sleep);
-		avr->cycle += 1 + sleep;
-	}
-	// Interrupt servicing might change the PC too, during 'sleep'
-	if (avr->state == cpu_Running || avr->state == cpu_Sleeping)
-		avr_service_interrupts(avr);
-
-	// if we were stepping, use this state to inform remote gdb
-	if (step)
-		avr->state = cpu_StepDone;
+    // if we were stepping, use this state to inform remote gdb
+    if (step)
+        avr->state = cpu_StepDone;
 }
 
 /*
