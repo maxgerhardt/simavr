@@ -26,6 +26,7 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
 #include "sim_avr.h"
 
 #include "fifo_declare.h"
@@ -135,6 +136,7 @@ typedef struct avr_uart_t {
 #define AVR_IOCTL_UART_GET_FLAGS(_name)	AVR_IOCTL_DEF('u','a','g',(_name))
 
 void avr_uart_init(avr_t * avr, avr_uart_t * port);
+void avr_uart_set_raw_output_mode(bool raw_mode);
 
 #define AVR_UARTX_DECLARE(_name, _prr, _prusart) \
 	.uart ## _name = { \

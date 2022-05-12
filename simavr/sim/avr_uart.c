@@ -35,6 +35,7 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "avr_uart.h"
 #include "sim_hex.h"
 #include "sim_time.h"
@@ -46,6 +47,7 @@
 #endif
 
 DEFINE_FIFO(uint16_t, uart_fifo);
+static bool uart_raw_mode = false;
 
 static inline void
 avr_uart_clear_interrupt(
@@ -269,15 +271,20 @@ avr_uart_udr_write(
 	}
 
 	if (p->flags & AVR_UART_FLAG_STDIO) {
-		const int maxsize = 256;
-		if (!p->stdio_out)
-			p->stdio_out = malloc(maxsize);
-		p->stdio_out[p->stdio_len++] = v < ' ' ? '.' : v;
-		p->stdio_out[p->stdio_len] = 0;
-		if (v == '\n' || p->stdio_len == maxsize) {
-			p->stdio_len = 0;
-			AVR_LOG(avr, LOG_OUTPUT,
-					FONT_GREEN "%s\n" FONT_DEFAULT, p->stdio_out);
+		if (uart_raw_mode) {
+			// no filtering / transformation applied in raw mode
+			putchar((int) v);
+		} else {
+			const int maxsize = 256;
+			if (!p->stdio_out)
+				p->stdio_out = malloc(maxsize);
+			p->stdio_out[p->stdio_len++] = v < ' ' ? '.' : v;
+			p->stdio_out[p->stdio_len] = 0;
+			if (v == '\n' || p->stdio_len == maxsize) {
+				p->stdio_len = 0;
+				AVR_LOG(avr, LOG_OUTPUT,
+						FONT_GREEN "%s\n" FONT_DEFAULT, p->stdio_out);
+			}
 		}
 	}
 	TRACE(printf("UDR%c(%02x) = %02x\n", p->name, addr, v);)
@@ -504,6 +511,17 @@ static	avr_io_t	_io = {
 	.ioctl = avr_uart_ioctl,
 	.irq_names = irq_names,
 };
+
+void
+avr_uart_set_raw_output_mode(
+	bool raw_mode) 
+{
+	uart_raw_mode = raw_mode;
+	if (uart_raw_mode) {
+		//disable buffering for firmware output
+		setvbuf(stdout, NULL, _IONBF, 0);
+	}
+}
 
 void
 avr_uart_init(

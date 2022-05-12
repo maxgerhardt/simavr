@@ -21,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <libgen.h>
 #include <string.h>
 #include <signal.h>
@@ -30,6 +31,7 @@
 #include "sim_gdb.h"
 #include "sim_hex.h"
 #include "sim_vcd_file.h"
+#include "avr_uart.h"
 
 #include "sim_core_decl.h"
 
@@ -55,6 +57,7 @@ display_usage(
 	 "       [-ti <vector>]      Add traces for IRQ vector <vector>\n"
 	 "       [--input|-i <file>] A VCD file to use as input signals\n"
 	 "       [--output|-o <file>] A VCD file to save the traced signals\n"
+	 "       [--raw|-r]          Print UART output of firmware without filtering\n"
 	 "       [--add-trace|-at <name=kind@addr/mask>]\n"
 	 "                           Add signal to be included in VCD output\n"
 	 "       [-ff <.hex file>]   Load next .hex file as flash\n"
@@ -108,6 +111,7 @@ main(
 	int trace_vectors[8] = {0};
 	int trace_vectors_count = 0;
 	const char *vcd_input = NULL;
+	bool raw_stdio_output = false;
 
 	if (argc == 1)
 		display_usage(basename(argv[0]));
@@ -139,6 +143,9 @@ main(
 				exit(1);
 			}
 			snprintf(f.tracename, sizeof(f.tracename), "%s", argv[++pi]);
+		} else if (!strcmp(argv[pi], "-r") ||
+				   !strcmp(argv[pi], "--raw")) {
+			raw_stdio_output = true;
 		} else if (!strcmp(argv[pi], "-t") ||
 				   !strcmp(argv[pi], "--trace")) {
 #ifdef CONFIG_SIMAVR_TRACE
@@ -272,6 +279,7 @@ main(
 		exit(1);
 	}
 	avr_init(avr);
+	avr_uart_set_raw_output_mode(raw_stdio_output);
 	avr->log = (log > LOG_TRACE ? LOG_TRACE : log);
 #ifdef CONFIG_SIMAVR_TRACE
 	avr->trace = trace;
