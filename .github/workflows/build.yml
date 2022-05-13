@@ -108,7 +108,7 @@ jobs:
         id: build_image
         with:
           cpu: cortex-a8 # from test-armv7l.yml
-          base_image: raspios_lite:2022-04-04
+          base_image: raspios_lite:latest
           commands: |
               commands to build image
               sudo apt-get install -y build-essential git make gcc-avr avr-libc libelf-dev freeglut3-dev patchelf
