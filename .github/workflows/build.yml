@@ -197,11 +197,12 @@ jobs:
           brew install make libelf freeglut patchelf 
           brew tap osx-cross/avr
           brew install avr-gcc@5 avr-binutils
+          echo 'export PATH="/usr/local/opt/avr-gcc@5/bin:$PATH"' >> /Users/runner/.bash_profile
       - name: CI-Build
         run: |
           make -j4 build-simavr V=1 RELEASE=1
           mkdir simavr_installed
-          make -j4 install RELEASE=1 DESTDIR=$(pwd)/simavr_installed/
+          make -k -j4 install RELEASE=1 DESTDIR=$(pwd)/simavr_installed/ || true
           file simavr_installed/bin
           patchelf --remove-needed ./libsimavr.so.1 simavr_installed/bin/simavr || true
           patchelf --add-needed libsimavr.so.1 simavr_installed/bin/simavr
