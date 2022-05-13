@@ -92,6 +92,9 @@ jobs:
           mkdir simavr_installed
           make  install RELEASE=1 DESTDIR=$(pwd)/simavr_installed/
           file simavr_installed/bin
+          patchelf --remove-needed ./libsimavr.so.1 simavr_installed/bin/simavr || true
+          patchelf --add-needed libsimavr.so.1 simavr_installed/bin/simavr
+          patchelf --set-rpath '$ORIGIN/../lib/' simavr_installed/bin/simavr
           ldd simavr_installed/bin/*
           simavr_installed/bin/simavr --list-cores || true
       - name: Tar files
@@ -183,4 +186,31 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: Linux AArch64
+          path: simavr.tar.gz
+  build-darwin-x64:
+    # this is currently macos-11, Big Sur
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Dependenncies
+        run: | 
+          brew install gcc git make libelf freeglut patchelf 
+          brew tap osx-cross/avr
+          brew install avr-gcc@5 avr-binutils
+      - name: CI-Build
+        run: |
+          make -j4 build-simavr V=1 RELEASE=1
+          mkdir simavr_installed
+          make -j4 install RELEASE=1 DESTDIR=$(pwd)/simavr_installed/
+          file simavr_installed/bin
+          patchelf --remove-needed ./libsimavr.so.1 simavr_installed/bin/simavr || true
+          patchelf --add-needed libsimavr.so.1 simavr_installed/bin/simavr
+          patchelf --set-rpath '$ORIGIN/../lib/' simavr_installed/bin/simavr
+          ldd simavr_installed/bin/*
+          simavr_installed/bin/simavr --list-cores || true
+      - name: Tar files
+        run: tar -cvf simavr.tar.gz -C simavr_installed .
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Mac OS Intel 64-bit
           path: simavr.tar.gz
