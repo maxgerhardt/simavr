@@ -194,7 +194,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install Dependenncies
         run: | 
-          brew install gcc git make libelf freeglut patchelf 
+          brew install make libelf freeglut patchelf 
           brew tap osx-cross/avr
           brew install avr-gcc@5 avr-binutils
       - name: CI-Build
