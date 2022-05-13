@@ -108,7 +108,6 @@ jobs:
         id: build_image
         with:
           cpu: cortex-a7
-          cpu_info: raspberrypi_3b
           base_image: raspios_lite:latest
           copy_artifact_path: simavr.tar.gz
           commands: |
