@@ -202,14 +202,12 @@ jobs:
         run: |
           avr-gcc --version || true
           clang --version
+          export CFLAGS="-DGL_SILENCE_DEPRECATION"
           make -j4 build-simavr V=1 RELEASE=1
           mkdir simavr_installed
           make -k -j4 install RELEASE=1 DESTDIR=$(pwd)/simavr_installed/ || true
           file simavr_installed/bin/*
-          patchelf --remove-needed ./libsimavr.so.1 simavr_installed/bin/simavr || true
-          patchelf --add-needed libsimavr.so.1 simavr_installed/bin/simavr
-          patchelf --set-rpath '$ORIGIN/../lib/' simavr_installed/bin/simavr
-          ldd simavr_installed/bin/*
+          otool -L simavr_installed/bin/*
           simavr_installed/bin/simavr --list-cores || true
       - name: Tar files
         run: tar -cvf simavr.tar.gz -C simavr_installed .
