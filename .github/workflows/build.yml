@@ -121,9 +121,9 @@ jobs:
               patchelf --set-rpath '$ORIGIN/../lib/' simavr_installed/bin/simavr
               ldd simavr_installed/bin/*
               simavr_installed/bin/simavr --list-cores || true
-        - name: Tar files
-          run: tar -cvf simavr.tar.gz -C simavr_installed .
-        - uses: actions/upload-artifact@v3
-          with:
-            name: Linux ARMv7l
-            path: simavr.tar.gz
+      - name: Tar files
+        run: tar -cvf simavr.tar.gz -C simavr_installed .
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Linux ARMv7l
+          path: simavr.tar.gz
