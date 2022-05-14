@@ -222,6 +222,7 @@ jobs:
       - build-lin64
       - build-lin32
       - build-win64
+      - build-win32
       - build-armv6l
       - build-armv7l
       - build-aarch64
