@@ -48,6 +48,11 @@ for d in */ ; do
   }
 }
 EOF
-    pio package pack "$simavr_extracted"
+    pio package pack -o "../.." "$simavr_extracted"
     cd ..
 done
+
+mkdir platformio_packages
+mv *.tar.gz platformio_packages
+ls -R platformio_packages
+pwd
