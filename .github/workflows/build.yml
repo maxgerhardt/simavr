@@ -215,3 +215,12 @@ jobs:
         with:
           name: Mac OS Intel 64-bit
           path: simavr.tar.gz
+  pio-release: 
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/download-artifact@v3
+      with:
+        path: artefacts        
+    - name: Display structure of downloaded filess
+      run: ls -R
+      working-directory: artefacts
