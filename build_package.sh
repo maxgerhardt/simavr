@@ -52,8 +52,8 @@ for d in */ ; do
   }
 }
 EOF
-    ~/.platformio/penv/bin/platformio package pack -o ".." "$simavr_extracted"
-    #pio package pack -o "../.." "$simavr_extracted"
+    #~/.platformio/penv/bin/platformio package pack -o ".." "$simavr_extracted"
+    pio package pack -o "../.." "$simavr_extracted"
     cd ..
 done
 echo "Back to $(pwd)"
