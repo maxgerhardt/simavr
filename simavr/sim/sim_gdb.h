@@ -26,8 +26,6 @@
 extern "C" {
 #endif
 
-#include <sim_gdb_types.h>
-
 /* Watchpoint types.
    See GDB User Manual, Appendix E.2 */
 enum avr_gdb_watch_type {
@@ -49,10 +47,6 @@ int avr_gdb_processor(avr_t * avr, int sleep);
 // Called from sim_core.c
 void avr_gdb_handle_watchpoints(avr_t * g, uint16_t addr, enum avr_gdb_watch_type type);
 void avr_gdb_handle_break(avr_t *);
-
-int gdb_watch_find(const avr_gdb_watchpoints_t * w, uint32_t addr);
-void gdb_send_quick_status(avr_gdb_t * g, uint8_t signal);
-int gdb_network_handler(avr_gdb_t * g, uint32_t dosleep);
 
 #ifdef __cplusplus
 };

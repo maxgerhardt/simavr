@@ -36,10 +36,36 @@
 // For debug printfs: "#define DBG(w) w"
 #define DBG(w)
 
+#define WATCH_LIMIT (32)
+
+typedef struct {
+	uint32_t len; /**< How many points are taken (points[0] .. points[len - 1]). */
+	struct {
+		uint32_t addr; /**< Which address is watched. */
+		uint32_t size; /**< How large is the watched segment. */
+		uint32_t kind; /**< Bitmask of enum avr_gdb_watch_type values. */
+	} points[WATCH_LIMIT];
+} avr_gdb_watchpoints_t;
+
+typedef struct avr_gdb_t {
+	avr_t * avr;
+	int	listen;	// listen socket
+	int	s;	// current gdb connection
+
+	avr_gdb_watchpoints_t breakpoints;
+	avr_gdb_watchpoints_t watchpoints;
+
+	// These are used by gdb's "info io_registers" command.
+
+	uint16_t ior_base;
+	uint8_t  ior_count, mad;
+} avr_gdb_t;
+
+
 /**
  * Returns the index of the watchpoint if found, -1 otherwise.
  */
-int
+static int
 gdb_watch_find(
 		const avr_gdb_watchpoints_t * w,
 		uint32_t addr )
@@ -204,7 +230,7 @@ gdb_send_stop_status(
 	gdb_send_reply(g, cmd);
 }
 
-void
+static void
 gdb_send_quick_status(
 		avr_gdb_t * g,
 		uint8_t signal )
@@ -754,7 +780,7 @@ gdb_handle_command(
 	}
 }
 
-int
+static int
 gdb_network_handler(
 		avr_gdb_t * g,
 		uint32_t dosleep )
