@@ -246,6 +246,11 @@ jobs:
     - uses: actions/download-artifact@v3
       with:
         path: artefacts        
-    - name: Display structure of downloaded filess
-      run: ls -R
+    - name: Package for PlatformIO
+      run: | 
+        ls ..
+        ls -R .
+        cp ../build_package.sh .
+        ./build_package.sh
+        ls -R .
       working-directory: artefacts
