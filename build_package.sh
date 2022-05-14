@@ -34,7 +34,7 @@ for d in */ ; do
   "version": "1.10700.$datecode",
   "description": "simavr is a lean, mean and hackable AVR simulator",
   "keywords": [
-    "simulator",s
+    "simulator",
     "avr",
     "microchip"
   ],
