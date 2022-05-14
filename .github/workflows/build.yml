@@ -255,7 +255,7 @@ jobs:
         cp ../build_package.sh .
         ./build_package.sh
       working-directory: artefacts
-      - uses: actions/upload-artifact@v3
-        with:
-          name: All PlatformIO packages
-          path: ~/platformio_packages
+    - uses: actions/upload-artifact@v3
+      with:
+        name: All PlatformIO packages
+        path: ~/platformio_packages
