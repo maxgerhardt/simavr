@@ -216,7 +216,9 @@ jobs:
           name: Mac OS Intel 64-bit
           path: simavr.tar.gz
   pio-release:
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
+    # test: only Linux 64
+    needs: build-lin64
     steps:
     - uses: actions/checkout@v2
     - uses: actions/download-artifact@v3
