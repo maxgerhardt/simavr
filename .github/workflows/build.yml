@@ -215,7 +215,8 @@ jobs:
         with:
           name: Mac OS Intel 64-bit
           path: simavr.tar.gz
-  pio-release: 
+  pio-release:
+    runs-on: ubuntu-latest 
     steps:
     - uses: actions/checkout@v2
     - uses: actions/download-artifact@v3
