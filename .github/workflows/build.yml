@@ -276,6 +276,7 @@ jobs:
       run: | 
         mkdir -p ~/release
         ls -R
+        cd artefacts
         mv "Linux 64-bit/*.tar.gz" "~/release/Linux 64-bit.tar.gz"
         mv "Linux 32-bit/*.tar.gz" "~/release/Linux 32-bit.tar.gz"
         mv "Linux ARMv6l/*.tar.gz" "~/release/Linux ARMv6l.tar.gz"
