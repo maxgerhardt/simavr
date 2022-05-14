@@ -21,10 +21,14 @@ for d in */ ; do
     echo "Deriving system type from $dir"
     system=$(
     case "$dir" in
-        ("Linux 64-bit") echo "linux_x86_64";;
-        ("Linux 32-bit") echo "linux_x86";;
-        ("Windows 64-bit") echo "windows_amd64";;
-        ("Windows 32-bit") echo "windows_x86";;
+        ("Linux 64-bit") echo "\"linux_x86_64\"";;
+        ("Linux 32-bit") echo "\"linux_x86\"";;
+        ("Windows 64-bit") echo "\"windows_amd64\"";;
+        ("Windows 32-bit") echo "\"windows_x86\"";;
+        ("Mac OS Intel 64-bit") echo "\"daring_x86_64\", \"darwin_arm64\"";;
+        ("Linux AArch64") echo "\"linux_aarch64\"";;
+        ("Linux ARMv6l") echo "\"linux_armv6l\"";;
+        ("Linux ARMv7l") echo "\"linux_armv7l\",\"linux_armv8l\"";;
         (*) echo "Unknown system" && exit ;;
     esac)
     echo "The system type is $system"
@@ -40,7 +44,7 @@ for d in */ ; do
   ],
   "license": "GPL-3.0-or-later",
   "system": [
-    "$system"
+    $system
   ],
   "repository": {
     "type": "git",
@@ -48,10 +52,11 @@ for d in */ ; do
   }
 }
 EOF
-    pio package pack -o "../.." "$simavr_extracted"
+    ~/.platformio/penv/bin/platformio package pack -o ".." "$simavr_extracted"
+    #pio package pack -o "../.." "$simavr_extracted"
     cd ..
 done
-
+echo "Back to $(pwd)"
 mkdir platformio_packages
 mv *.tar.gz platformio_packages
 ls -R platformio_packages
