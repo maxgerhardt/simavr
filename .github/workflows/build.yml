@@ -220,9 +220,12 @@ jobs:
     # test: only Linux 64
     needs: 
       - build-lin64
-      #- build-lin32
-      #- build-win64
-      #- build-win32
+      - build-lin32
+      - build-win64
+      - build-armv6l
+      - build-armv7l
+      - build-aarch64
+      - build-darwin-x64
     steps:
     - uses: actions/checkout@v2
     - name: Cache pip
@@ -268,8 +271,21 @@ jobs:
     - uses: actions/download-artifact@v3
       with:
         path: artefacts        
+    - name: Prepare for Release  
+      run: | 
+        mkdir -p ~/release
+        ls -R
+        mv "Linux 64-bit/*.tar.gz" "~/release/Linux 64-bit.tar.gz"
+        mv "Linux 32-bit/*.tar.gz" "~/release/Linux 32-bit.tar.gz"
+        mv "Linux ARMv6l/*.tar.gz" "~/release/Linux ARMv6l.tar.gz"
+        mv "Linux ARMv7l/*.tar.gz" "~/release/Linux ARMv6l.tar.gz"
+        mv "Mac OS Intel 64-bit/*.tar.gz" "~/release/Mac OS Intel 64-bit.tar.gz"
+        zip "~/release/Windows 32-bit.zip" "Windows 32-bit/*"
+        zip "~/release/Windows 64-bit.zip" "Windows 64-bit/*"
+        zip "~/release/All PlatformIO packages.zip" "All PlatformIO packages/*"
+        ls -R ~/release
     - name: Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: /home/runner/work/simavr/simavr/artefacts/**/*
+        files: ~/release/*
