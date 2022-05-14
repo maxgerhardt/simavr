@@ -1,5 +1,5 @@
 #!/bin/bash
-
+mkdir -p ~/platformio_packages
 for d in */ ; do
     cd "$d"
     simavr_tar="simavr.tar.gz"
@@ -53,11 +53,10 @@ for d in */ ; do
 }
 EOF
     #~/.platformio/penv/bin/platformio package pack -o ".." "$simavr_extracted"
-    pio package pack -o "../.." "$simavr_extracted"
+    pio package pack -o ~/platformio_packages "$simavr_extracted"
     cd ..
 done
 echo "Back to $(pwd)"
-mkdir platformio_packages
-mv *.tar.gz platformio_packages
+cd ~
 ls -R platformio_packages
 pwd
