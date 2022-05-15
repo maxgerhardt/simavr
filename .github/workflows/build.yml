@@ -278,11 +278,11 @@ jobs:
         cd artefacts
         pwd
         ls -R
-        mv Linux\ 64-bit/*.tar.gz" "~/release/Linux 64-bit.tar.gz"
-        mv Linux\ 32-bit/*.tar.gz" "~/release/Linux 32-bit.tar.gz"
-        mv Linux\ ARMv6l/*.tar.gz" "~/release/Linux ARMv6l.tar.gz"
-        mv Linux\ ARMv7l/*.tar.gz" "~/release/Linux ARMv6l.tar.gz"
-        mv Mac OS Intel 64-bit/*.tar.gz" "~/release/Mac OS Intel 64-bit.tar.gz"
+        mv Linux\ 64-bit/*.tar.gz "~/release/Linux 64-bit.tar.gz"
+        mv Linux\ 32-bit/*.tar.gz "~/release/Linux 32-bit.tar.gz"
+        mv Linux\ ARMv6l/*.tar.gz "~/release/Linux ARMv6l.tar.gz"
+        mv Linux\ ARMv7l/*.tar.gz "~/release/Linux ARMv6l.tar.gz"
+        mv Mac\ OS\ Intel\ 64-bit/*.tar.gz "~/release/Mac OS Intel 64-bit.tar.gz"
         zip -r "~/release/Windows 32-bit.zip" Windows\ 32-bit/*
         zip -r "~/release/Windows 64-bit.zip" Windows\ 64-bit/*
         zip -r "~/release/All PlatformIO packages.zip" All\ PlatformIO\ packages/*
