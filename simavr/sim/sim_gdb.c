@@ -36,6 +36,37 @@
 // For debug printfs: "#define DBG(w) w"
 #define DBG(w)
 
+#define WATCH_LIMIT (32)
+
+typedef struct {
+	uint32_t len; /**< How many points are taken (points[0] .. points[len - 1]). */
+	struct {
+		uint32_t addr; /**< Which address is watched. */
+		uint32_t size; /**< How large is the watched segment. */
+		uint32_t kind; /**< Bitmask of enum avr_gdb_watch_type values. */
+	} points[WATCH_LIMIT];
+} avr_gdb_watchpoints_t;
+
+/* How many AVR instructions to execute before looking for gdb input. */
+
+#define GDB_BURST 256
+
+typedef struct avr_gdb_t {
+	avr_t * avr;
+	int burst_count;	// Current instruction burst size
+	int	listen;			// listen socket
+	int	s;				// current gdb connection
+
+    avr_gdb_watchpoints_t breakpoints;
+	avr_gdb_watchpoints_t watchpoints;
+
+	// These are used by gdb's "info io_registers" command.
+
+	uint16_t ior_base;
+	uint8_t  ior_count, mad;
+} avr_gdb_t;
+
+
 /**
  * Returns the index of the watchpoint if found, -1 otherwise.
  */
@@ -354,8 +385,7 @@ handle_monitor(avr_t * avr, avr_gdb_t * g, char * cmd)
 			} else if (m != 2) {
 				return 1;
 			} else {
-				if (count <= 0 || base + count + 32 > REG_NAME_COUNT ||
-					base + count + 32 > avr->ioend) {
+				if (count <= 0 || base + count + 32 > avr->ioend) {
 					return 4;	// bad value
 				}
 				g->ior_base = base;
@@ -381,7 +411,6 @@ handle_monitor(avr_t * avr, avr_gdb_t * g, char * cmd)
 static void
 handle_io_registers(avr_t * avr, avr_gdb_t * g, char * cmd)
 {
-	extern const char *avr_regname(unsigned int); // sim_core.c
 	char *       params;
 	char *       reply;
 	unsigned int addr, count;
@@ -403,14 +432,15 @@ handle_io_registers(avr_t * avr, avr_gdb_t * g, char * cmd)
 			int i;
 
 			// Send names and values.
-			addr += 32;
+			addr += 32 + g->ior_base;
+
 			if (addr + count > avr->ioend)
 				count = avr->ioend + 1 - addr;
 			reply = buff;
 			for (i = 0; i < count; ++i) {
 				const char *name;
 
-				name = avr_regname(addr + i);
+				name = avr_regname(avr, addr + i);
 				reply += sprintf(reply, "%s,%x;",
 						 name, avr->data[addr + i]);
 				if (reply > buff + sizeof buff - 20)
@@ -419,9 +449,7 @@ handle_io_registers(avr_t * avr, avr_gdb_t * g, char * cmd)
 		} else {
 			// Send register count.
 
-			count = g->ior_count ? g->ior_count :
-						avr->ioend > REG_NAME_COUNT ?
-							REG_NAME_COUNT - 32 : avr->ioend - 32;
+			count = g->ior_count ? g->ior_count : avr->ioend - 32 + 1;
 			sprintf(buff, "%x", count);
 		}
 		reply = buff;
@@ -763,6 +791,7 @@ gdb_network_handler(
 	int max;
 	FD_ZERO(&read_set);
 
+	g->burst_count = 0; // Reset burst count
 	if (g->s != -1) {
 		FD_SET(g->s, &read_set);
 		max = g->s + 1;
@@ -906,10 +935,14 @@ avr_gdb_processor(
 		gdb_send_stop_status(g, 5, "hwbreak", NULL);
 		avr->state = cpu_Stopped;
 	} else if (avr->state == cpu_StepDone) {
-		gdb_send_quick_status(g, 0);
+		gdb_send_stop_status(g, 5, "hwbreak", NULL);
 		avr->state = cpu_Stopped;
+	} else {
+		/* Look for gdb input every GDB_BURST instructions. */
+
+		if (sleep == 0 && g->burst_count++ < GDB_BURST)
+			return 0;
 	}
-	// this also sleeps for a bit
 	return gdb_network_handler(g, sleep);
 }
 

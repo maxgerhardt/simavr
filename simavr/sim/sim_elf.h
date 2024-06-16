@@ -36,6 +36,7 @@ extern "C" {
  * "fake" a non-Harvard addressing space for the AVR
  */
 #define AVR_SEGMENT_OFFSET_FLASH 0
+#define AVR_SEGMENT_OFFSET_DATA   0x00800000
 #define AVR_SEGMENT_OFFSET_EEPROM 0x00810000
 
 #include "sim_avr.h"
@@ -70,6 +71,7 @@ typedef struct elf_firmware_t {
 	uint32_t 	datasize;
 	uint32_t 	bsssize;
 	// read the .eeprom section of the elf, too
+	uint32_t	eeprombase;
 	uint8_t * 	eeprom;
 	uint32_t 	eesize;
 	uint8_t *	fuse;
@@ -79,6 +81,8 @@ typedef struct elf_firmware_t {
 #if ELF_SYMBOLS
 	avr_symbol_t **  symbol;
 	uint32_t	symbolcount;
+	uint32_t	highest_data_symbol;
+	char *		dwarf_file;	// Must be dynamically allocated.
 #endif
 } elf_firmware_t ;
 
@@ -95,6 +99,10 @@ void
 avr_load_firmware(
 	avr_t * avr,
 	elf_firmware_t * firmware);
+
+// DWARF, not ELF, but a separate header for this would be silly.
+
+int avr_read_dwarf(avr_t *avr, const char *filename);
 
 #ifdef __cplusplus
 };
