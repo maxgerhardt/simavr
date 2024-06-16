@@ -26,21 +26,33 @@
 #include <string.h>
 #include "avr_eeprom.h"
 
-static avr_cycle_count_t avr_eempe_clear(struct avr_t * avr, avr_cycle_count_t when, void * param)
+static avr_cycle_count_t
+avr_eempe_clear(
+		struct avr_t * avr,
+		avr_cycle_count_t when,
+		void * param)
 {
 	avr_eeprom_t * p = (avr_eeprom_t *)param;
 	avr_regbit_clear(p->io.avr, p->eempe);
 	return 0;
 }
 
-static avr_cycle_count_t avr_eei_raise(struct avr_t * avr, avr_cycle_count_t when, void * param)
+static avr_cycle_count_t
+		avr_eei_raise(struct avr_t * avr,
+		avr_cycle_count_t when,
+		void * param)
 {
 	avr_eeprom_t * p = (avr_eeprom_t *)param;
 	avr_raise_interrupt(p->io.avr, &p->ready);
 	return 0;
 }
 
-static void avr_eeprom_write(avr_t * avr, avr_io_addr_t addr, uint8_t v, void * param)
+static void
+avr_eeprom_write(
+		avr_t * avr,
+		avr_io_addr_t addr,
+		uint8_t v,
+		void * param)
 {
 	avr_eeprom_t * p = (avr_eeprom_t *)param;
 	uint8_t eempe = avr_regbit_get(avr, p->eempe);
@@ -83,7 +95,11 @@ static void avr_eeprom_write(avr_t * avr, avr_io_addr_t addr, uint8_t v, void * 
 	avr_regbit_clear(avr, p->eere);
 }
 
-static int avr_eeprom_ioctl(struct avr_io_t * port, uint32_t ctl, void * io_param)
+static int
+avr_eeprom_ioctl(
+		struct avr_io_t * port,
+		uint32_t ctl,
+		void * io_param)
 {
 	avr_eeprom_t * p = (avr_eeprom_t *)port;
 	int res = -1;
@@ -99,6 +115,7 @@ static int avr_eeprom_ioctl(struct avr_io_t * port, uint32_t ctl, void * io_para
 			memcpy(p->eeprom + desc->offset, desc->ee, desc->size);
 			AVR_LOG(port->avr, LOG_TRACE, "EEPROM: %s: AVR_IOCTL_EEPROM_SET Loaded %d at offset %d\n",
 					__FUNCTION__, desc->size, desc->offset);
+			res = 0;
 		}	break;
 		case AVR_IOCTL_EEPROM_GET: {
 			avr_eeprom_desc_t * desc = (avr_eeprom_desc_t*)io_param;
@@ -111,13 +128,16 @@ static int avr_eeprom_ioctl(struct avr_io_t * port, uint32_t ctl, void * io_para
 				memcpy(desc->ee, p->eeprom + desc->offset, desc->size);
 			else	// allow to get access to the read data, for gdb support
 				desc->ee = p->eeprom + desc->offset;
+			res = 0;
 		}	break;
 	}
-	
+
 	return res;
 }
 
-static void avr_eeprom_dealloc(struct avr_io_t * port)
+static void
+avr_eeprom_dealloc(
+		struct avr_io_t * port)
 {
 	avr_eeprom_t * p = (avr_eeprom_t *)port;
 	if (p->eeprom)
@@ -131,7 +151,10 @@ static	avr_io_t	_io = {
 	.dealloc = avr_eeprom_dealloc,
 };
 
-void avr_eeprom_init(avr_t * avr, avr_eeprom_t * p)
+void
+avr_eeprom_init(
+		avr_t * avr,
+		avr_eeprom_t * p)
 {
 	p->io = _io;
 //	printf("%s init (%d bytes) EEL/H:%02x/%02x EED=%02x EEC=%02x\n",
@@ -139,7 +162,7 @@ void avr_eeprom_init(avr_t * avr, avr_eeprom_t * p)
 
 	p->eeprom = malloc(p->size);
 	memset(p->eeprom, 0xff, p->size);
-	
+
 	avr_register_io(avr, &p->io);
 	avr_register_vector(avr, &p->ready);
 

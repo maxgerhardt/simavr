@@ -27,11 +27,6 @@
 #include <stdio.h>
 #include <libgen.h>
 
-#if __APPLE__
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
 #include <pthread.h>
 
 #include "sim_avr.h"
@@ -124,7 +119,7 @@ int main(int argc, char *argv[])
 		mmcu = "atmega2560";
 		freq = 20000000;
 	}
-	printf("%s booloader 0x%05x: %d bytes\n", mmcu, boot_base, boot_size);
+	printf("%s bootloader 0x%05x: %d bytes\n", mmcu, boot_base, boot_size);
 
 	avr = avr_make_mcu_by_name(mmcu);
 	if (!avr) {
